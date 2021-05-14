@@ -11,17 +11,18 @@ namespace CRUDApplication.Controllers
 {
     public class EmployeeController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private IEmployeeRepository _employeeRepository;
 
-        public EmployeeController(ApplicationDbContext db)
+        public EmployeeController(IEmployeeRepository employeeRepository)
         {
-            _db = db;
+            _employeeRepository = employeeRepository;
         }
 
         [AllowAnonymous]
         public IActionResult Index()
         {
-            IEnumerable<Employee> objList = _db.Employees;
+            var objList = _employeeRepository.Index();
+            //IEnumerable<Employee> objList = _db.Employees;
             return View(objList);
         }
 
@@ -38,28 +39,18 @@ namespace CRUDApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Employees.Add(obj);
-                _db.SaveChanges();
+                _employeeRepository.Create(obj);
                 return RedirectToAction("index");
             }
-            return View(obj);
+            return View();
         }
 
         [Authorize]
         [HttpGet]
-        public IActionResult Delete(int? id)
+        public IActionResult Delete(Employee obj)
         {
-            if(id == null || id == 0)
-            {
-                return NotFound();
-            }
-            var obj = _db.Employees.Find(id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
-
-            return View(obj);
+            var employee = _employeeRepository.Delete(obj.Id);
+            return View(employee);
 
         }
 
@@ -68,14 +59,8 @@ namespace CRUDApplication.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeletePost(int? id)
         {
-            var obj = _db.Employees.Find(id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
+            var employee = _employeeRepository.DeletePost(id);
 
-            _db.Employees.Remove(obj);
-            _db.SaveChanges();
             return RedirectToAction("index");
 
         }
@@ -84,17 +69,10 @@ namespace CRUDApplication.Controllers
         [HttpGet]
         public IActionResult Update(int? id)
         {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-            var obj = _db.Employees.Find(id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
+            var employee = _employeeRepository.Update(id);
 
-            return View(obj);
+
+            return View(employee);
 
         }
 
@@ -103,13 +81,9 @@ namespace CRUDApplication.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Update(Employee obj)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Employees.Update(obj);
-                _db.SaveChanges();
-                return RedirectToAction("index");
-            }
-            return View(obj);
+            var employee = _employeeRepository.Update(obj);
+
+            return RedirectToAction("index");
         }
     }
 }

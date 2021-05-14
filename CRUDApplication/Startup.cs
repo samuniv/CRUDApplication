@@ -1,4 +1,5 @@
 using CRUDApplication.Data;
+using CRUDApplication.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -44,6 +45,7 @@ namespace CRUDApplication
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
             services.AddControllersWithViews();
 
